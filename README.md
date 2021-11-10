@@ -1,12 +1,12 @@
 # Terraform AWS Domain Redirect
 
-This module is used for redirecting all requests from one or more `from` domains to a single `to` domain. It can either redirect with the path and query string as was initially given, or with a static path.
+This module is used for redirecting all requests from one or more `from` domains to a single `to` domain. It can redirect either with the path and query string as was initially given, or with a static path.
 
-*Note:* If you change any of the parameters for this module, you'll probably want to invalidate your CloudFront cache.
+*Note:* If you change any of the parameters for this module, you'll probably want to invalidate the cache of the CloudFront distribution that this module creates.
 
 ### Usage:
 ```
-// Must have Route53 zones for each domain to redirect. Subdomains that get 
+// Must have Route53 zones for each domain to redirect from. Subdomains that get 
 // redirected can use the same zones as parent domains that get redirected.
 resource "aws_route53_zone" "from_domain_1" {
   name              = "my-old-domain.com"
