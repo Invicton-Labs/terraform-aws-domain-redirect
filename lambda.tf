@@ -13,37 +13,6 @@ data "archive_file" "lambda" {
   output_path             = "${var.lambda_zip_output_directory != null ? var.lambda_zip_output_directory : "${path.root}/archives"}/domain-redirect-${random_id.module_id.hex}.zip"
 }
 
-// Create a "fake" origin for the CloudFront distribution. Even though it won't be used, it's still necessary
-resource "aws_s3_bucket" "origin" {
-  bucket = "domain-redirect-${random_id.module_id.hex}"
-  acl    = "private"
-}
-
-data "aws_iam_policy_document" "origin" {
-  statement {
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.origin.arn}/*"]
-
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.origin.iam_arn]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "origin" {
-  bucket = aws_s3_bucket.origin.id
-  policy = data.aws_iam_policy_document.origin.json
-}
-
-resource "aws_s3_bucket_public_access_block" "origin" {
-  bucket                  = aws_s3_bucket.origin.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
 resource "aws_cloudfront_origin_access_identity" "origin" {
   comment = "Origin access identity for domain redirect ${random_id.module_id.hex}"
 }
