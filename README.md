@@ -4,7 +4,7 @@ This module is used for redirecting all requests from one or more `from` domains
 
 *Note:* If you change any of the parameters for this module, you'll probably want to invalidate your CloudFront cache.
 
-Usage:
+### Usage:
 ```
 // Must have Route53 zones for each domain to redirect. Subdomains that get 
 // redirected can use the same zones as parent domains that get redirected.
