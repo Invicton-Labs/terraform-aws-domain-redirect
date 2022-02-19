@@ -43,9 +43,9 @@ resource "aws_cloudfront_distribution" "redirect" {
     cached_methods         = ["HEAD", "GET", "OPTIONS"]
     target_origin_id       = "S3-Origin"
     viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    min_ttl                = var.cache_duration
+    default_ttl            = var.cache_duration
+    max_ttl                = var.cache_duration
     compress               = false
 
     forwarded_values {
@@ -58,6 +58,7 @@ resource "aws_cloudfront_distribution" "redirect" {
     }
 
     // Link a Lambda@Edge function to return redirects for everything
+    // This is the origin-request, so the response is cached in CloudFront
     lambda_function_association {
       event_type   = "origin-request"
       lambda_arn   = module.lambda_origin_request.lambda.qualified_arn

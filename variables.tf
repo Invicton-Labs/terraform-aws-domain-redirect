@@ -29,9 +29,9 @@ variable "static_path" {
 }
 
 variable "redirect_code" {
-  description = "The HTTP code to use for the redirect. Options are `301` (moved permanently) or `302` (moved temporarily). Defaults to `302`."
+  description = "The HTTP code to use for the redirect. Options are `301` (moved permanently) or `302` (moved temporarily). Defaults to `301`."
   type        = number
-  default     = 302
+  default     = 301
   validation {
     condition     = contains([301, 302], var.redirect_code)
     error_message = "The `redirect_code` variable must be either `301` or `302`."
@@ -44,12 +44,6 @@ variable "lambda_log_retention_days" {
   default     = 14
 }
 
-variable "lambda_zip_output_directory" {
-  description = "The directory to output the Lambda ZIP file to."
-  type        = string
-  default     = null
-}
-
 variable "logging_config" {
   description = "Configuration for the CloudFront distribution logging. If none is provided, logging will not be enabled."
   type = object({
@@ -58,6 +52,12 @@ variable "logging_config" {
     prefix          = string
   })
   default = null
+}
+
+variable "cache_duration" {
+  description = "The number of seconds to use for the CloudFront cache TTL (min, default, and max)."
+  type        = number
+  default     = 86400
 }
 
 data "aws_region" "current" {}

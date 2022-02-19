@@ -1,5 +1,5 @@
 // Create a Route53 record for each domain
-resource "aws_route53_record" "cloudfront-frontend" {
+resource "aws_route53_record" "cloudfront" {
   for_each        = var.domains_from
   zone_id         = each.value
   name            = each.key
