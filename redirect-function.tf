@@ -2,7 +2,7 @@ module "jsonencoded_static_redirect_path" {
   source  = "Invicton-Labs/jsonencode-no-replacements/null"
   version = "~> 0.1.1"
   // This trims all leading forward slashes
-  object = regex("^/*(.*)$", var.static_path == null ? "/" : var.static_path)[0]
+  object = regex("^/*(.*)$", var.redirect_static_path == null ? "/" : var.redirect_static_path)[0]
 }
 module "jsonencoded_redirect_path_prefix" {
   source  = "Invicton-Labs/jsonencode-no-replacements/null"
@@ -31,7 +31,7 @@ function trimLeft(string, charToRemove) {
 
 function handler(event) {    
     var protocol = event.request.headers['cloudfront-forwarded-proto']['value'];
-    ${var.redirect_type == "STATIC_PATH" ? <<EOF2
+    ${local.is_static_redirect ? <<EOF2
 var new_uri = protocol + "://${var.domain_to}/" + ${module.jsonencoded_static_redirect_path.encoded};
 EOF2
     : <<EOF2

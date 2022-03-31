@@ -39,20 +39,21 @@ resource "aws_cloudfront_distribution" "redirect" {
 
   // Cache everything as long as possible, since they all get a redirect
   default_cache_behavior {
-    allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods  = ["HEAD", "GET", "OPTIONS"]
-    //target_origin_id       = "S3-Origin"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["HEAD", "GET", "OPTIONS"]
     target_origin_id       = "dummy"
     viewer_protocol_policy = "allow-all"
-    min_ttl                = var.cache_duration
-    default_ttl            = var.cache_duration
-    max_ttl                = var.cache_duration
+    min_ttl                = var.cache_duration_min
+    default_ttl            = var.cache_duration_default
+    max_ttl                = var.cache_duration_max
     compress               = false
 
     forwarded_values {
-      // Allow caching based on protocol (http vs https)
-      headers      = ["CloudFront-Forwarded-Proto"]
-      query_string = true
+      // Forward the protocol header so we can redirect using the same protocol
+      headers = ["CloudFront-Forwarded-Proto"]
+      // If it's not a static redirect, forward the query string so we can 
+      // include it in the redirected URL
+      query_string = !local.is_static_redirect
       cookies {
         forward = "none"
       }

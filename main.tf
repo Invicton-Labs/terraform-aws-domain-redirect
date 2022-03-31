@@ -13,3 +13,7 @@ module "assert_region" {
 resource "random_id" "module_id" {
   byte_length = 8
 }
+
+locals {
+  is_static_redirect = var.redirect_type == "STATIC_PATH"
+}

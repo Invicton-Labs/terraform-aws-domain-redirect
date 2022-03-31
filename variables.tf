@@ -13,7 +13,7 @@ variable "domain_to" {
 }
 
 variable "redirect_type" {
-  description = "The type of redirect to perform. Options are `KEEP_PATH` or `STATIC_PATH`. If `STATIC_PATH` is used, the `static_path` variable must also be provided. Defaults to `KEEP_PATH`."
+  description = "The type of redirect to perform. Options are `KEEP_PATH` or `STATIC_PATH`."
   type        = string
   default     = "KEEP_PATH"
   validation {
@@ -22,7 +22,7 @@ variable "redirect_type" {
   }
 }
 
-variable "static_path" {
+variable "redirect_static_path" {
   description = "The fixed, static path to redirect all requests to. It is only used if the `redirect_type` variable is set to `STATIC_PATH`."
   type        = string
   default     = "/"
@@ -39,7 +39,7 @@ EOF
 }
 
 variable "redirect_code" {
-  description = "The HTTP code to use for the redirect. Options are `301` (moved permanently) or `302` (moved temporarily). Defaults to `301`."
+  description = "The HTTP code to use for the redirect. Options are `301` (moved permanently) or `302` (moved temporarily)."
   type        = number
   default     = 301
   validation {
@@ -49,7 +49,7 @@ variable "redirect_code" {
 }
 
 variable "lambda_log_retention_days" {
-  description = "The number of days to keep the Lambda@Edge (redirect generation function) logs for. Defaults to `14`."
+  description = "The number of days to keep the Lambda@Edge (redirect generation function) logs for."
   type        = number
   default     = 14
 }
@@ -64,8 +64,20 @@ variable "logging_config" {
   default = null
 }
 
-variable "cache_duration" {
-  description = "The number of seconds to use for the CloudFront cache TTL (min, default, and max)."
+variable "cache_duration_min" {
+  description = "The minimum number of seconds to use for the CloudFront cache TTL."
+  type        = number
+  default     = 86400
+}
+
+variable "cache_duration_default" {
+  description = "The default number of seconds to use for the CloudFront cache TTL."
+  type        = number
+  default     = 86400
+}
+
+variable "cache_duration_max" {
+  description = "The maximum number of seconds to use for the CloudFront cache TTL."
   type        = number
   default     = 86400
 }
