@@ -9,19 +9,28 @@ This module is used for redirecting all requests from one or more `from` domains
 // Must have Route53 zones for each domain to redirect from. Subdomains that get 
 // redirected can use the same zones as parent domains that get redirected.
 resource "aws_route53_zone" "from_domain_1" {
-  name              = "my-old-domain.com"
+  provider = aws.route53
+  name     = "my-old-domain.com"
 }
 
 resource "aws_route53_zone" "from_domain_2" {
-  name              = "my-other-old-domain.com"
+  provider = aws.route53
+  name     = "my-other-old-domain.com"
 }
 
 module "domain_redirect" {
   source = "Invicton-Labs/domain-redirect/aws"
 
-  // The provider must always be in us-east-1, since that's where CloudFront gets deployed
   providers = {
-    aws = aws.us-east-1
+    // This is the provider used for the CloudFront distribution and ACM certificate for the "to" domain.
+    // It must always be in us-east-1, since that's where CloudFront gets deployed.
+    aws.cloudfront = aws.us-east-1
+
+    // This is the provider that will be used for creating DNS records in the hosted zone(s) for the "from" domains.
+    // It can be in any region and any AWS account, as long as it's in the same account/region as the hosted zones.
+    // It creates Alias records that point to the CloudFront distribution, and creates validation records
+    // for the ACM certificate that is used by CloudFront.
+    aws.route53 = aws.route53
   }
 
   // This is a map of domain names to Route53 zone IDs. The Route53 

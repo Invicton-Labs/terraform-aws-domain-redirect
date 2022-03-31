@@ -1,6 +1,6 @@
 // Create a Route53 record for each domain
 resource "aws_route53_record" "cloudfront" {
-  provider        = aws.route53_from
+  provider        = aws.route53
   for_each        = var.domains_from
   zone_id         = each.value
   name            = each.key

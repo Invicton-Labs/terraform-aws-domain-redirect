@@ -6,7 +6,7 @@ module "cloudfront_cert" {
   source  = "Invicton-Labs/validated-acm-certificate/aws"
   version = "~> 0.1.3"
   providers = {
-    aws.hosted_zones = aws.route53_to
+    aws.hosted_zones = aws.route53
     aws.certificate  = aws.cloudfront
   }
   depends_on = [
