@@ -4,19 +4,19 @@ locals {
 
 // Create the CloudFront distribution
 resource "aws_cloudfront_distribution" "redirect" {
-  // Depend on completion of the lambda so the function version is correct
-  depends_on = [
-    module.lambda_origin_request
-  ]
+  provider = aws.cloudfront
 
-  // We don't actually use this origin, since all requests are redirected at the Lambda@Edge level
-  // CloudFront still requires one to be configured though
   origin {
-    domain_name = aws_s3_bucket.origin.bucket_regional_domain_name
-    origin_id   = "S3-Origin"
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.origin.cloudfront_access_identity_path
+    connection_attempts = 1
+    connection_timeout  = 1
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
     }
+    domain_name = "dummy.local"
+    origin_id   = "dummy"
   }
 
   enabled             = true
@@ -39,9 +39,10 @@ resource "aws_cloudfront_distribution" "redirect" {
 
   // Cache everything as long as possible, since they all get a redirect
   default_cache_behavior {
-    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods         = ["HEAD", "GET", "OPTIONS"]
-    target_origin_id       = "S3-Origin"
+    allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods  = ["HEAD", "GET", "OPTIONS"]
+    //target_origin_id       = "S3-Origin"
+    target_origin_id       = "dummy"
     viewer_protocol_policy = "allow-all"
     min_ttl                = var.cache_duration
     default_ttl            = var.cache_duration
@@ -57,12 +58,10 @@ resource "aws_cloudfront_distribution" "redirect" {
       }
     }
 
-    // Link a Lambda@Edge function to return redirects for everything
-    // This is the origin-request, so the response is cached in CloudFront
-    lambda_function_association {
-      event_type   = "origin-request"
-      lambda_arn   = module.lambda_origin_request.lambda.qualified_arn
-      include_body = false
+    // Link a CloudFront Function to return redirects for everything
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.redirect.arn
     }
   }
 
@@ -72,10 +71,10 @@ resource "aws_cloudfront_distribution" "redirect" {
     }
   }
 
-  // Use the TLS certificate provisioned in domain.tf
+  // Use the TLS certificate provisioned in acm.tf
   viewer_certificate {
     acm_certificate_arn      = module.cloudfront_cert.certificate_arn
     ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2019"
+    minimum_protocol_version = var.ssl_minimum_protocol_version
   }
 }

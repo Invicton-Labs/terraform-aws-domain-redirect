@@ -6,9 +6,12 @@ module "cloudfront_cert" {
   source  = "Invicton-Labs/validated-acm-certificate/aws"
   version = "~> 0.1.3"
   providers = {
-    aws.hosted_zones = aws
-    aws.certificate  = aws
+    aws.hosted_zones = aws.route53_to
+    aws.certificate  = aws.cloudfront
   }
+  depends_on = [
+    module.assert_region
+  ]
   // The primary domain on the certificate is the first "from" domain
   primary_domain                = local.first_from_domain
   primary_domain_hosted_zone_id = var.domains_from[local.first_from_domain]

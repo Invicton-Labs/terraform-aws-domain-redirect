@@ -23,9 +23,19 @@ variable "redirect_type" {
 }
 
 variable "static_path" {
-  description = "The fixed, static path to redirect all requests to. It is only used if the `redirect_type` variable is set to `STATIC_PATH`. Defaults to `/`."
+  description = "The fixed, static path to redirect all requests to. It is only used if the `redirect_type` variable is set to `STATIC_PATH`."
   type        = string
   default     = "/"
+}
+
+variable "redirect_path_prefix" {
+  description = <<EOF
+The prefix to prepend to all paths when redirecting. It is only used if the `redirect_type` variable is set to `KEEP_PATH`.
+
+For example, if you are redirecting `foo.com` to `bar.org`, and this variable is set to `myprefix/`, then a request to `foo.com/some/path?query=parameter` will be redirected to `bar.org/myprefix/some/path?query=parameter`.
+EOF
+  type        = string
+  default     = ""
 }
 
 variable "redirect_code" {
@@ -60,10 +70,8 @@ variable "cache_duration" {
   default     = 86400
 }
 
-data "aws_region" "current" {}
-module "assert_region" {
-  source        = "Invicton-Labs/assertion/null"
-  version       = "~> 0.2.1"
-  condition     = data.aws_region.current.name == "us-east-1"
-  error_message = "The AWS provider for the `domain-redirect` module must be in the 'us-east-1' region, where CloudFront distributions and Lambda@Edge functions must be created. The given provider is in the '${data.aws_region.current.name}' region."
+variable "ssl_minimum_protocol_version" {
+  description = "The minimum SSL version to support."
+  type        = string
+  default     = "TLSv1.2_2019"
 }
