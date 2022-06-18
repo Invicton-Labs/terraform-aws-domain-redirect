@@ -15,5 +15,5 @@ resource "random_id" "module_id" {
 }
 
 locals {
-  is_static_redirect = var.redirect_type == "STATIC_PATH"
+  is_static_redirect = local.var_redirect_type == "STATIC_PATH"
 }

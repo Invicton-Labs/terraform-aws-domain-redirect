@@ -21,21 +21,21 @@ resource "aws_cloudfront_distribution" "redirect" {
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "CloudFront distribution for redirecting domains."
+  comment             = "CloudFront distribution for redirecting domains to ${local.var_domain_to}."
   default_root_object = local.default_root_object
 
   // Configure the CloudFront logging to use the specified S3 bucket
   dynamic "logging_config" {
-    for_each = var.logging_config != null ? [1] : []
+    for_each = local.var_logging_config != null ? [1] : []
     content {
-      include_cookies = var.logging_config.include_cookies
-      bucket          = var.logging_config.bucket
-      prefix          = var.logging_config.prefix
+      include_cookies = local.var_logging_config.include_cookies
+      bucket          = local.var_logging_config.bucket
+      prefix          = local.var_logging_config.prefix
     }
   }
 
   // Set the domain names for the distribution
-  aliases = keys(var.domains_from)
+  aliases = keys(local.var_domains_from)
 
   // Cache everything as long as possible, since they all get a redirect
   default_cache_behavior {
@@ -43,9 +43,9 @@ resource "aws_cloudfront_distribution" "redirect" {
     cached_methods         = ["HEAD", "GET", "OPTIONS"]
     target_origin_id       = "dummy"
     viewer_protocol_policy = "allow-all"
-    min_ttl                = var.cache_duration_min
-    default_ttl            = var.cache_duration_default
-    max_ttl                = var.cache_duration_max
+    min_ttl                = local.var_cache_duration_min
+    default_ttl            = local.var_cache_duration_default
+    max_ttl                = local.var_cache_duration_max
     compress               = false
 
     forwarded_values {
@@ -76,6 +76,6 @@ resource "aws_cloudfront_distribution" "redirect" {
   viewer_certificate {
     acm_certificate_arn      = module.cloudfront_cert.certificate_arn
     ssl_support_method       = "sni-only"
-    minimum_protocol_version = var.ssl_minimum_protocol_version
+    minimum_protocol_version = local.var_ssl_minimum_protocol_version
   }
 }

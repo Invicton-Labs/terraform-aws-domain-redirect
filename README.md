@@ -51,7 +51,7 @@ module "domain_redirect" {
   // Keep the path and query string of the original request when redirecting
   redirect_type            = "KEEP_PATH"
 
-  // Redirect with a 301 (Moved Permanently) instead of the default 302 (Found)
+  // Redirect with a 302 (Found) instead of the default 301 (Moved Permanently)
   redirect_code            = 301
 }
 ```
