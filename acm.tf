@@ -1,5 +1,5 @@
 locals {
-  first_from_domain = keys(local.var_domains_from)[0]
+  first_from_domain = keys(var.domains_from)[0]
 }
 
 module "cloudfront_cert" {
@@ -14,10 +14,10 @@ module "cloudfront_cert" {
   ]
   // The primary domain on the certificate is the first "from" domain
   primary_domain                = local.first_from_domain
-  primary_domain_hosted_zone_id = local.var_domains_from[local.first_from_domain]
+  primary_domain_hosted_zone_id = var.domains_from[local.first_from_domain]
   // All other "from" domains are SANs
   subject_alternative_names = {
-    for domain, zone_id in local.var_domains_from :
+    for domain, zone_id in var.domains_from :
     domain => zone_id
     if domain != local.first_from_domain
   }
