@@ -1,5 +1,6 @@
 locals {
   default_root_object = "domain-redirect-${random_id.module_id.hex}"
+  acm_cert_arn        = module.cert_provided.provided ? var.acm_certificate_arn : module.cloudfront_cert[0].certificate_arn
 }
 
 // Create the CloudFront distribution
@@ -62,7 +63,7 @@ resource "aws_cloudfront_distribution" "redirect" {
     // Link a CloudFront Function to return redirects for everything
     function_association {
       event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.redirect.arn
+      function_arn = module.redirect_function.cloudfront_function.arn
     }
   }
 
@@ -74,8 +75,15 @@ resource "aws_cloudfront_distribution" "redirect" {
 
   // Use the TLS certificate provisioned in acm.tf
   viewer_certificate {
-    acm_certificate_arn      = module.cloudfront_cert.certificate_arn
+    acm_certificate_arn      = local.acm_cert_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = var.ssl_minimum_protocol_version
+  }
+
+  tags = {
+    terraform_module = "Invicton-Labs/domain-redirect/aws"
+    // Tags limited to 255 characters
+    domain_to    = substr(var.domain_to, 0, 255)
+    domains_from = substr(join(" ", keys(var.domains_from)), 0, 255)
   }
 }

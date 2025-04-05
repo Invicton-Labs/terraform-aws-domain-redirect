@@ -2,9 +2,16 @@ locals {
   first_from_domain = keys(var.domains_from)[0]
 }
 
+module "cert_provided" {
+  source  = "Invicton-Labs/input-provided/null"
+  version = ">=0.2.0"
+  input   = var.acm_certificate_arn
+}
+
 module "cloudfront_cert" {
   source  = "Invicton-Labs/validated-acm-certificate/aws"
   version = "~> 0.1.3"
+  count   = module.cert_provided.one_if_not_provided
   providers = {
     aws.hosted_zones = aws.route53
     aws.certificate  = aws.cloudfront

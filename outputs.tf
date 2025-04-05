@@ -49,6 +49,10 @@ output "ssl_minimum_protocol_version" {
   description = "The value of the `ssl_minimum_protocol_version` input variable, or the default value if the input was `null`."
   value       = var.ssl_minimum_protocol_version
 }
+output "acm_certificate_arn" {
+  description = "The value of the `acm_certificate_arn` input variable."
+  value       = var.acm_certificate_arn
+}
 
 
 //==================================================

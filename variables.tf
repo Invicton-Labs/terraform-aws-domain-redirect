@@ -111,3 +111,10 @@ variable "ssl_minimum_protocol_version" {
   nullable    = false
   default     = "TLSv1.2_2021"
 }
+
+variable "acm_certificate_arn" {
+  description = "ARN of an existing ACM certificate that you would like to use (it MUST cover all of the `domains_from` domains)."
+  type        = string
+  nullable    = true
+  default     = null
+}
