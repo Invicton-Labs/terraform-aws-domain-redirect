@@ -1,5 +1,8 @@
 module "redirect_function" {
-  source               = "./cloudfront-function"
+  source = "./cloudfront-function"
+  providers = {
+    aws = aws.cloudfront
+  }
   module_id            = random_id.module_id.hex
   domain_to            = var.domain_to
   redirect_static_path = var.redirect_static_path
